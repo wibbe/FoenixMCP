@@ -93,3 +93,7 @@ short proc_run(const char * path, int argc, char * argv[]) {
         return result;
     }
 }
+
+void proc_run_mem(long start, int argc, char * argv[]) {
+    proc_exec(start, k_default_stack, argc, argv);
+}

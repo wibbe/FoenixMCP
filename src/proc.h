@@ -49,4 +49,14 @@ extern int proc_get_result();
  */
 extern short proc_run(const char * path, int argc, char * argv[]);
 
+/*
+ * Start a user process at a specified memory location
+ *
+ * Inputs:
+ * start = the address to start execution
+ * argc = the number of arguments
+ * argv = the array of arguments
+ */
+extern void proc_run_mem(long start, int argc, char * argv[]);
+
 #endif

@@ -11,6 +11,11 @@
 extern short cmd_run(short screen, int argc, const char * argv[]);
 
 /*
+ * Start execution at a specified memory address
+ */
+extern short cmd_call(short screen, int argc, const char * argv[]);
+
+/*
  * List the directory at the given path
  */
 extern short cmd_dir(short screen, int argc, const char * argv[]);

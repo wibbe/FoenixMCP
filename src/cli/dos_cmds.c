@@ -105,6 +105,18 @@ short cmd_run(short screen, int argc, const char * argv[]) {
     return result;
 }
 
+short cmd_call(short screen, int argc, const char * argv[]) {
+    TRACE("cmd_call");
+
+    if (argc > 1) {
+        long address = cli_eval_number(argv[1]);
+        proc_run_mem(address, argc, argv);
+    } else {
+        print(screen, "USAGE: CALL <address>\n");
+        return -1;
+    }
+}
+
 /*
  * Create a directory
  */
