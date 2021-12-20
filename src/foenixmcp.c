@@ -290,7 +290,7 @@ void initialize() {
     }
 
     /* Go back to text mode */
-    // text_init();
+    text_init();
 }
 
 int main(int argc, char * argv[]) {
