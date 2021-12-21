@@ -20,9 +20,14 @@
 #define ANSI_BUFFER_SIZE    16
 #define MAX_ANSI_ARGS       10
 
-#define CON_CTRL_ANSI       0x80            /* Set to enable ANSI escape processing */
-#define CON_IOCTRL_ANSI_ON  0x01            /* IOCTRL Command: turn on ANSI terminal codes */
-#define CON_IOCTRL_ANSI_OFF 0x02            /* IOCTRL Command: turn off ANSI terminal codes */
+#define CON_CTRL_ANSI           0x80            /* Set to enable ANSI escape processing */
+#define CON_IOCTRL_ANSI_ON      0x01            /* IOCTRL Command: turn on ANSI terminal codes */
+#define CON_IOCTRL_ANSI_OFF     0x02            /* IOCTRL Command: turn off ANSI terminal codes */
+#define CON_IOCTRL_SET_XY       0x03
+#define CON_IOCTRL_GET_XY       0x04
+#define CON_IOCTRL_SET_COLOR    0x05
+#define CON_IOCTRL_CLEAR_SCREEN 0x06
+#define CON_IOCTRL_CLEAR_LINE   0x07
 
 typedef void (*ansi_handler)(p_channel, short, short[]);
 
@@ -43,6 +48,24 @@ typedef struct s_console_data {
     char ansi_buffer[ANSI_BUFFER_SIZE]; /* Used to keep track of characters in the ANSI escape sequences */
     char key_buffer;                    /* Used to peek at keyboard input */
 } t_console_data, *p_console_data;
+
+typedef struct s_ioctrl_cursor {
+    short screen;
+    unsigned short x;
+    unsigned short y;
+} t_ioctrl_cursor, *p_ioctrl_cursor;
+
+typedef struct s_ioctrl_color {
+    short screen;
+    short foreground;
+    short background;
+} t_ioctrl_color, *p_ioctrl_color;
+
+typedef struct s_ioctrl_clear {
+    short screen;
+    short mode;
+} t_ioctrl_clear, *p_ioctrl_clear;
+
 
 /*
  * Forwards
@@ -698,6 +721,51 @@ short con_ioctrl(p_channel chan, short command, uint8_t * buffer, short size) {
             /* Turn on ANSI interpreting */
             con_data->control &= ~CON_CTRL_ANSI;
             return 0;
+
+        case CON_IOCTRL_SET_XY: {
+                if (size != sizeof(t_ioctrl_cursor)) {
+                    return -1;
+                }
+                p_ioctrl_cursor cursor = (p_ioctrl_cursor)buffer;
+                text_set_xy(cursor->screen, cursor->x, cursor->y);
+                return 0;
+            }
+
+        case CON_IOCTRL_GET_XY: {
+                if (size != sizeof(t_ioctrl_cursor)) {
+                    return -1;
+                }
+                p_ioctrl_cursor cursor = (p_ioctrl_cursor)buffer;
+                text_get_xy(cursor->screen, &cursor->x, &cursor->y);
+                return 0;
+            }
+
+        case CON_IOCTRL_SET_COLOR: {
+                if (size != sizeof(t_ioctrl_color)) {
+                    return -1;
+                }
+                p_ioctrl_color color = (p_ioctrl_color)buffer;
+                text_set_color(color->screen, color->foreground, color->background);
+                return 0;
+            }
+
+        case CON_IOCTRL_CLEAR_SCREEN: {
+                if (size != sizeof(t_ioctrl_clear)) {
+                    return -1;
+                }
+                p_ioctrl_clear clear = (p_ioctrl_clear)buffer;
+                text_clear(clear->screen, clear->mode);
+                return 0;
+            }
+
+        case CON_IOCTRL_CLEAR_LINE: {
+                if (size != sizeof(t_ioctrl_clear)) {
+                    return -1;
+                }
+                p_ioctrl_clear clear = (p_ioctrl_clear)buffer;
+                text_clear_line(clear->screen, clear->mode);
+                return 0;
+            }
 
         default:
             break;
